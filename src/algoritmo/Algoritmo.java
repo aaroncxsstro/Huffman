@@ -7,8 +7,8 @@ public class Algoritmo {
 
     public static void main(String[] args) {
         Scanner tec = new Scanner(System.in);
-        System.out.println("Introduce la cadena a comprimir"); 
-        String cadena = tec.nextLine(); 
+        System.out.println("Introduce la cadena a comprimir");
+        String cadena = tec.nextLine();
         
         // Extraigo la representación en bits de la cadena
         List<String> bitsRepresentacion = extraerBytes(cadena);
@@ -26,33 +26,41 @@ public class Algoritmo {
         System.out.println("Cadena comprimida: " + cadenaComprimida);
         System.out.println("Recuento de bits (comprimida): " + obtenerRecuentoBitsComprimidos(cadenaComprimida));
         
+        // Esperar a que el usuario pulse Enter para descomprimir
+        System.out.println("Pulsa Enter para descomprimir la cadena...");
+        tec.nextLine();  // Espera a que el usuario pulse Enter
+        
+        // Descomprimir la cadena y mostrar el resultado
+        String cadenaDescomprimida = descomprimir(cadenaComprimida, codigoHuffman);
+        System.out.println("Cadena descomprimida: " + cadenaDescomprimida);
+        
         // Cierro el Scanner para evitar fugas de recursos
         tec.close();
     }
     
     // Método que extrae los bytes de la cadena y devuelve la representación en bits
     private static List<String> extraerBytes(String cadena) {
-        List<String> bitsRepresentacion = new ArrayList<>(); 
-        byte[] bytes = cadena.getBytes(StandardCharsets.UTF_8); 
+        List<String> bitsRepresentacion = new ArrayList<>();
+        byte[] bytes = cadena.getBytes(StandardCharsets.UTF_8);
         
         for (int i = 0; i < bytes.length; i++) {
             if ((bytes[i] & 0x80) != 0) {
-                int numBytes = 1; 
+                int numBytes = 1;
                 
                 while (i + numBytes < bytes.length && (bytes[i + numBytes] & 0xC0) == 0x80) {
-                    numBytes++; 
+                    numBytes++;
                 }
                 
                 byte[] multibyteCharacter = new byte[numBytes];
                 for (int j = 0; j < numBytes; j++) {
-                    multibyteCharacter[j] = bytes[i + j]; 
+                    multibyteCharacter[j] = bytes[i + j];
                     String bits = String.format("%8s", Integer.toBinaryString(multibyteCharacter[j] & 0xFF)).replace(' ', '0');
                     bitsRepresentacion.add(bits);
                 }
 
                 i += numBytes - 1;
             } else {
-                String bits = String.format("%8s", Integer.toBinaryString(bytes[i] & 0xFF)).replace(' ', '0'); 
+                String bits = String.format("%8s", Integer.toBinaryString(bytes[i] & 0xFF)).replace(' ', '0');
                 bitsRepresentacion.add(bits);
             }
         }
@@ -107,7 +115,7 @@ public class Algoritmo {
         generarCodigoHuffman(nodo.derecha, codigo + "1", codigoHuffman);
     }
 
- // Método de compresión que recibe la cadena y el código de Huffman
+    // Método de compresión que recibe la cadena y el código de Huffman
     private static String comprimir(String cadena, Map<Character, String> codigoHuffman) {
         StringBuilder cadenaComprimida = new StringBuilder();
         for (char c : cadena.toCharArray()) {
@@ -122,5 +130,22 @@ public class Algoritmo {
         return Arrays.stream(cadenaComprimida.split(" "))
                      .mapToInt(String::length)
                      .sum();
+    }
+
+    // Método para descomprimir la cadena usando el código de Huffman
+    private static String descomprimir(String cadenaComprimida, Map<Character, String> codigoHuffman) {
+        // Invertir el mapa de códigos de Huffman
+        Map<String, Character> codigoInverso = new HashMap<>();
+        for (Map.Entry<Character, String> entry : codigoHuffman.entrySet()) {
+            codigoInverso.put(entry.getValue(), entry.getKey());
+        }
+
+        StringBuilder cadenaDescomprimida = new StringBuilder();
+        String[] secuenciasBits = cadenaComprimida.split(" ");
+        for (String secuencia : secuenciasBits) {
+            cadenaDescomprimida.append(codigoInverso.get(secuencia));
+        }
+        
+        return cadenaDescomprimida.toString();
     }
 }
