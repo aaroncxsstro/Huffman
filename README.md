@@ -1,6 +1,6 @@
 <br />
 <div align="center">
-    <img src="./resources/logo.png" alt="Logo" width="50%" height="50%">
+    <img src="./resources/logo.png?v=2" alt="Logo" width="50%" height="50%">
   
 ## Algoritmo de Compresión Huffman
 
